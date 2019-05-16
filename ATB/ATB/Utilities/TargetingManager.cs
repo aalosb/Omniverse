@@ -59,7 +59,7 @@ namespace ATB.Utilities
                     {
                         {
                             var objs = GameObjectManager.GameObjects.Where(o => IsValidEnemy(o) && ((Character)o).InCombat
-                            && ((Character)o).CurrentTargetId == PartyTank.ObjectId);
+                            && ((Character)o).CurrentTargetId == PartyTank.ObjectId && Core.Player.Location.Distance3D(o.Location) <= MainSettingsModel.Instance.MaxTargetDistance);
                             if (objs != null && objs.Any())
                             {
                                 var newTarget = objs.OrderBy(o => o.CurrentHealth).First();
@@ -76,7 +76,11 @@ namespace ATB.Utilities
                 case AutoTargetSelection.LowestCurrentHp:
                     if (!Core.Player.HasTarget || !Core.Player.CurrentTarget.CanAttack || PulseCheck())
                     {
-                        var objs = GameObjectManager.GameObjects.Where(o => IsValidEnemy(o) && ((Character)o).InCombat);
+                        var objs = GameObjectManager.GameObjects.Where(o => 
+                            IsValidEnemy(o) 
+                            && ((Character)o).InCombat 
+                            && Core.Player.Location.Distance3D(o.Location) <= MainSettingsModel.Instance.MaxTargetDistance
+                        );
                         if (objs != null && objs.Any())
                         {
                             var newTarget = objs.OrderBy(o => o.CurrentHealth).First();
@@ -101,7 +105,7 @@ namespace ATB.Utilities
                     {
                         var objs = GameObjectManager.GameObjects.Where(o => IsValidEnemy(o)
                         && ((Character)o).InCombat
-                        && ((Character)o).CurrentTargetId == PartyTank.ObjectId);
+                        && ((Character)o).CurrentTargetId == PartyTank.ObjectId && Core.Player.Location.Distance3D(o.Location) <= MainSettingsModel.Instance.MaxTargetDistance);
                         if (objs != null && objs.Any())
                         {
                             var newTarget = objs.OrderBy(o => o.MaxHealth).First();
@@ -118,7 +122,7 @@ namespace ATB.Utilities
                 case AutoTargetSelection.LowestTotalHp:
                     if (!Core.Player.HasTarget || !Core.Player.CurrentTarget.CanAttack || PulseCheck())
                     {
-                        var objs = GameObjectManager.GameObjects.Where(o => IsValidEnemy(o) && ((Character)o).InCombat);
+                        var objs = GameObjectManager.GameObjects.Where(o => IsValidEnemy(o) && ((Character)o).InCombat && Core.Player.Location.Distance3D(o.Location) <= MainSettingsModel.Instance.MaxTargetDistance);
                         if (objs != null && objs.Any())
                         {
                             var newTarget = objs.OrderBy(o => o.MaxHealth).First();
@@ -143,7 +147,7 @@ namespace ATB.Utilities
                     {
                         {
                             var objs = GameObjectManager.GameObjects.Where(o => IsValidEnemy(o) && ((Character)o).InCombat
-                                                                                && ((Character)o).CurrentTargetId == PartyTank.ObjectId);
+                                                                                && ((Character)o).CurrentTargetId == PartyTank.ObjectId && Core.Player.Location.Distance3D(o.Location) <= MainSettingsModel.Instance.MaxTargetDistance);
                             if (objs != null && objs.Any())
                             {
                                 var newTarget = objs.OrderByDescending(o => o.CurrentHealth).First();
@@ -160,7 +164,7 @@ namespace ATB.Utilities
                 case AutoTargetSelection.HighestCurrentHp:
                     if (!Core.Player.HasTarget || !Core.Player.CurrentTarget.CanAttack || PulseCheck())
                     {
-                        var objs = GameObjectManager.GameObjects.Where(o => IsValidEnemy(o) && ((Character)o).InCombat);
+                        var objs = GameObjectManager.GameObjects.Where(o => IsValidEnemy(o) && ((Character)o).InCombat && Core.Player.Location.Distance3D(o.Location) <= MainSettingsModel.Instance.MaxTargetDistance);
                         if (objs != null && objs.Any())
                         {
                             var newTarget = objs.OrderByDescending(o => o.CurrentHealth).First();
@@ -185,7 +189,7 @@ namespace ATB.Utilities
                     {
                         var objs = GameObjectManager.GameObjects.Where(o => IsValidEnemy(o)
                                                                             && ((Character)o).InCombat
-                                                                            && ((Character)o).CurrentTargetId == PartyTank.ObjectId);
+                                                                            && ((Character)o).CurrentTargetId == PartyTank.ObjectId && Core.Player.Location.Distance3D(o.Location) <= MainSettingsModel.Instance.MaxTargetDistance);
                         if (objs != null && objs.Any())
                         {
                             var newTarget = objs.OrderByDescending(o => o.MaxHealth).First();
@@ -202,7 +206,7 @@ namespace ATB.Utilities
                 case AutoTargetSelection.HighestTotalHp:
                     if (!Core.Player.HasTarget || !Core.Player.CurrentTarget.CanAttack || PulseCheck())
                     {
-                        var objs = GameObjectManager.GameObjects.Where(o => IsValidEnemy(o) && ((Character)o).InCombat);
+                        var objs = GameObjectManager.GameObjects.Where(o => IsValidEnemy(o) && ((Character)o).InCombat && Core.Player.Location.Distance3D(o.Location) <= MainSettingsModel.Instance.MaxTargetDistance);
                         if (objs != null && objs.Any())
                         {
                             var newTarget = objs.OrderByDescending(o => o.MaxHealth).First();
@@ -310,7 +314,10 @@ namespace ATB.Utilities
         {
             if (DateTime.Now < _pulseLimiter) return false;
             if (DateTime.Now > _pulseLimiter)
-                _pulseLimiter = DateTime.Now.Add(TimeSpan.FromSeconds(1));
+                if (MainSettingsModel.Instance.AutoTargetSelection == AutoTargetSelection.LowestCurrentHp)
+                    _pulseLimiter = DateTime.Now.Add(TimeSpan.FromMilliseconds(250));
+                else
+                    _pulseLimiter = DateTime.Now.Add(TimeSpan.FromSeconds(1));
             return true;
         }
     }
